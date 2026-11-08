@@ -69,7 +69,7 @@ const page = ({ title, description, current, content, canonical = '/', bodyClass
 </head><body class="${bodyClass}">
 ${header(current)}
 <main id="main">${content}</main>
-<footer class="site-footer"><div><p><strong>Iowa Bowling Coaches Association</strong></p><p>Celebrating and supporting high school bowlers and coaches across Iowa.</p></div><p class="footer-links"><a href="/awards/">Awards archive</a><a href="/history/">Program history</a></p></footer>
+<footer class="site-footer"><div><p><strong>Iowa Bowling Coaches Association</strong></p><p>Celebrating and supporting high school bowlers and coaches across Iowa.</p></div><p class="footer-links"><a href="/awards/">Awards archive</a><a href="/history/">Historical records</a></p></footer>
 <script src="/site.js" defer></script>
 </body></html>\n`;
 
@@ -95,8 +95,8 @@ const home = page({
   current: 'home',
   canonical: '/',
   bodyClass: 'home',
-  content: `<section class="hero"><div class="hero-content"><p class="eyebrow light">Iowa high school bowling</p><h1>Honoring excellence.<br>Preserving the history.</h1><p>Find All-State and All-District awards, historic tournament programs, and association updates in one place.</p><div class="hero-actions"><a class="button primary" href="/awards/">View awards</a><a class="button secondary" href="/history/">Explore history</a></div></div><div class="lane-art" aria-hidden="true"><span class="pin pin-one"></span><span class="pin pin-two"></span><span class="ball"><i></i><i></i><i></i></span></div></section>
-  <section class="quick-links" aria-label="Featured resources"><a href="/awards/"><span>Latest honors</span><strong>2025–26 Awards</strong><i>All-State and All-District selections</i></a><a href="/history/"><span>From the archive</span><strong>State programs</strong><i>Documents spanning Iowa bowling history</i></a><a href="/hall-of-fame/"><span>Coming next</span><strong>Hall of Fame</strong><i>A new home for lasting achievements</i></a></section>
+  content: `<section class="hero"><div class="hero-content"><p class="eyebrow light">Iowa high school bowling</p><h1>Honoring excellence.<br>Preserving the history.</h1><p>Find All-State and All-District awards, historic tournament records, and association updates in one place.</p><div class="hero-actions"><a class="button primary" href="/awards/">View awards</a><a class="button secondary" href="/history/">Explore history</a></div></div><div class="lane-art" aria-hidden="true"><span class="pin pin-one"></span><span class="pin pin-two"></span><span class="ball"><i></i><i></i><i></i></span></div></section>
+  <section class="quick-links" aria-label="Featured resources"><a href="/awards/"><span>Latest honors</span><strong>2025–26 Awards</strong><i>All-State and All-District selections</i></a><a href="/history/"><span>From the archive</span><strong>State records</strong><i>Documents spanning Iowa bowling history</i></a><a href="/hall-of-fame/"><span>Coming next</span><strong>Hall of Fame</strong><i>A new home for lasting achievements</i></a></section>
   <section class="section-wrap updates"><div class="section-heading"><div><p class="eyebrow">Association news</p><h2>Latest updates</h2></div><p>Announcements and season information for Iowa bowling coaches.</p></div><div class="card-grid">${articleCards}</div></section>`,
 });
 
