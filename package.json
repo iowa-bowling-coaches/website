@@ -1,0 +1,14 @@
+{
+  "name": "iowa-bowling-coaches-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "import:wordpress": "node tools/import-wordpress.mjs",
+    "build": "node build.mjs",
+    "validate": "node tools/validate-site.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
