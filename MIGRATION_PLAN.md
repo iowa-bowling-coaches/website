@@ -1,6 +1,6 @@
 # Iowa Bowling Coaches Association — Cloudflare Migration
 
-Status: local static replacement built and validated; no GitHub remote, Cloudflare project, DNS, registrar, email, or production changes made.
+Status: static replacement built, validated, and pushed to the public `iowa-bowling-coaches/website` GitHub repository; no Cloudflare project, DNS, registrar, email, or production changes made.
 
 Audit date: 2026-11-08
 
