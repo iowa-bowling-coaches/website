@@ -155,7 +155,6 @@ const redirects = [
   '/contact-theme/ / 301',
   '/sample-page/ / 301',
   '/home/ / 301',
-  '/?page_id=33 /awards/ 301',
 ].join('\n') + '\n';
 const headers = `/*\n  X-Content-Type-Options: nosniff\n  X-Frame-Options: SAMEORIGIN\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n\n/wp-content/uploads/*\n  Cache-Control: public, max-age=31536000, immutable\n`;
 

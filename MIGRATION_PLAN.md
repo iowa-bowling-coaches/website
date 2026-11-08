@@ -1,6 +1,6 @@
 # Iowa Bowling Coaches Association — Cloudflare Migration
 
-Status: static replacement built, validated, and pushed to the public `iowa-bowling-coaches/website` GitHub repository; no Cloudflare project, DNS, registrar, email, or production changes made.
+Status: static replacement built, validated, pushed to the public `iowa-bowling-coaches/website` GitHub repository, and deployed to the Cloudflare Pages preview at https://iowa-bowling-coaches.pages.dev; no DNS, registrar, email, or production-domain changes made.
 
 Audit date: 2026-11-08
 
@@ -85,6 +85,8 @@ Email is outside the website migration. Preserve both MX records and the SPF rec
 Completed 2026-11-08. The local build preserves the original `/wp-content/uploads/...` paths, so existing document bookmarks do not need redirects. Five scanned programs were rebuilt as visually verified web-optimized copies because the originals exceeded Cloudflare Pages' 25 MiB asset limit. The original DreamHost files were not changed.
 
 ### 3. Validate on a preview URL
+
+Cloudflare Pages preview created 2026-11-08: https://iowa-bowling-coaches.pages.dev
 
 - Deploy to an unconnected Cloudflare Pages preview.
 - Compare all visible content against WordPress.
