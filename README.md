@@ -1,6 +1,6 @@
 # Iowa Bowling Coaches Association website
 
-Static replacement for the public Iowa Bowling Coaches Association WordPress site. The source is designed for GitHub and Cloudflare Pages and uses no runtime framework, database, or CMS.
+Static replacement for the public Iowa Bowling Coaches Association WordPress site. GitHub and Cloudflare Pages publish the static pages without a CMS. A single Pages Function handles the history contribution form.
 
 ## Build and validate
 
@@ -28,6 +28,19 @@ npm run validate
 ```
 
 Review all imported changes before committing them. Once WordPress is retired, future content can be updated directly in the checked-in data or moved to a simpler Markdown content structure.
+
+## History contributions
+
+Before publishing the contribution form, create a dedicated Cloudflare D1 database named `iowa-bowling-history-inbox`, run `history-inbox.sql` in its Console, and bind it to the **Production** environment of the Pages project as `HISTORY_INBOX`. Deploy after adding the binding. The handler only accepts posts from the public site and does not expose a public read endpoint. Do not bind the production inbox to preview deployments.
+
+To review submissions, open **Cloudflare → Storage & databases → D1 → iowa-bowling-history-inbox → Console** and run:
+
+```sql
+SELECT id, datetime(received_at, 'unixepoch') AS received_utc, name, email, message, link
+FROM history_submissions ORDER BY id DESC LIMIT 50;
+```
+
+Replies are not sent automatically. Review materials before publishing any contribution, and keep optional reply addresses out of the public archive.
 
 ## Deployment safety
 
