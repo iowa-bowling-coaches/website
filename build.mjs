@@ -84,9 +84,15 @@ const historyAppeal = {
   date: '2026-11-26',
   slug: 'help-preserve-iowa-bowling-history',
   title: 'Help preserve Iowa high school bowling history',
-  excerpt: 'Have an old state tournament program, results, or a story about Iowa high school bowling? Help us fill the gaps in the archive.',
+  excerpt: 'Help us find missing state tournament programs, including booklets from the Bowling Proprietors tournaments held from 1970 to 2009.',
   content: `<p>Do you have a state tournament program tucked away in a binder or a box of old bowling records? The Iowa Bowling Coaches Association is looking for materials that help tell the story of high school bowling across Iowa.</p>
-  <p>We’d especially like to find boys’ and girls’ state tournament programs from seasons missing in our <a href="/history/">history archive</a>. Results, brackets, team photos, newspaper clippings, and firsthand memories can help fill in the picture, too. Even a single page or a note about where to look is useful.</p>
+  <p>Our <a href="/history/">history archive</a> has some programs and official results, but we’re still looking for these souvenir booklets:</p>
+  <ul>
+    <li><strong>2010–2020:</strong> State tournament programs from 2010, 2012, 2014–2017, and 2020. We have the 2020 qualifier letter, but we’re still looking for the program.</li>
+    <li><strong>Recent tournaments:</strong> Programs from 2021 and 2023–2026, including any separate boys’ or girls’ editions.</li>
+    <li><strong>Bowling Proprietors tournaments (1970–2009):</strong> Programs from the Iowa Association of Bowling Proprietors’ invitational state meets, plus any results or team photos you’ve saved from that era.</li>
+  </ul>
+  <p>We’d also welcome early girls’ state tournament programs, brackets, newspaper clippings, and firsthand memories. Even a single page or a note about where to look is useful.</p>
   <p>If you have something to share, tell us the year or season, school or team, and what you have. You can include a link to a scan or photo, or leave a reply email and let us know if you have a paper copy or need help sharing a file.</p>
   <h2>Share a piece of bowling history</h2>
   <p>Submissions go to the association for review and are not posted automatically. Please don’t include private student information. If you leave a reply email, we’ll use it to follow up about your contribution.</p>
