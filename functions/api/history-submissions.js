@@ -23,10 +23,14 @@ async function notify(env, { name, email, message, link, id, preview }) {
       ].join('\n'),
     }),
   });
-  if (!response.ok) return false;
-  const { success, result } = await response.json();
-  return success === true && Boolean(result?.message_id) &&
+  const { success, result, errors } = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const code = errors?.[0]?.code;
+    return { sent: false, status: Number.isInteger(code) ? `HTTP ${response.status}, code ${code}` : `HTTP ${response.status}` };
+  }
+  const sent = success === true && Boolean(result?.message_id) &&
     [...(result.delivered || []), ...(result.queued || [])].some(address => address.toLowerCase() === env.HISTORY_MAIL_TO.toLowerCase());
+  return { sent, status: sent ? 'accepted' : 'recipient not accepted' };
 }
 
 function reply(status, message, extra = {}) {
@@ -104,11 +108,11 @@ export async function onRequest({ request, env }) {
     if (result.success && result.meta.changes === 1) id = result.meta.last_row_id;
   } catch { /* Never log submission content. */ }
   if (!Number.isSafeInteger(id) || id < 1) return reply(503, 'Your contribution could not be confirmed. Go back and try again later.');
-  let sent = false;
-  try { sent = await notify(env, { name, email, message, link, id, preview }); } catch { /* Do not expose provider response details. */ }
-  if (!sent) {
+  let delivery = { sent: false, status: 'request failed' };
+  try { delivery = await notify(env, { name, email, message, link, id, preview }); } catch { /* Do not expose provider response details. */ }
+  if (!delivery.sent) {
     console.warn('History inbox notification failed for submission ID', id);
-    if (preview) return reply(502, `Test submission #${id} was saved, but email sending could not be confirmed.`);
+    if (preview) return reply(502, `Test submission #${id} was saved, but email sending could not be confirmed (${delivery.status}).`);
   }
   if (preview) return reply(200, `Test submission #${id} was saved and accepted for email delivery.`);
   return accepted();
