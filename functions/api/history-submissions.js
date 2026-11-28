@@ -1,6 +1,33 @@
 const maxBytes = 32768;
 const thankYou = '/history/thank-you/';
 const allowedOrigins = new Set(['https://iowabowlingcoaches.org', 'https://www.iowabowlingcoaches.org']);
+const previewOrigin = 'https://history-contributions.iowa-bowling-coaches.pages.dev';
+
+async function notify(env, { name, email, message, link, id, preview }) {
+  const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env.HISTORY_MAIL_ACCOUNT}/email/sending/send`, {
+    method: 'POST',
+    redirect: 'error',
+    signal: AbortSignal.timeout(8000),
+    headers: { Authorization: `Bearer ${env.HISTORY_MAIL_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: env.HISTORY_MAIL_FROM,
+      to: env.HISTORY_MAIL_TO,
+      subject: `${preview ? '[TEST] ' : ''}Iowa bowling history contribution #${id}`,
+      text: [
+        preview ? 'Synthetic preview test. Not an archive contribution.' : 'A contribution was saved in the private history inbox.',
+        `Name: ${name || '(not provided)'}`,
+        `Contributor reply email: ${email || '(not provided)'}`,
+        `Document link: ${link || '(not provided)'}`,
+        '',
+        message,
+      ].join('\n'),
+    }),
+  });
+  if (!response.ok) return false;
+  const { success, result } = await response.json();
+  return success === true && Boolean(result?.message_id) &&
+    [...(result.delivered || []), ...(result.queued || [])].some(address => address.toLowerCase() === env.HISTORY_MAIL_TO.toLowerCase());
+}
 
 function reply(status, message, extra = {}) {
   return new Response(message, {
@@ -12,7 +39,9 @@ function reply(status, message, extra = {}) {
 export async function onRequest({ request, env }) {
   if (request.method !== 'POST') return reply(405, 'Please use the contribution form.', { Allow: 'POST' });
   const origin = new URL(request.url).origin;
-  if (!allowedOrigins.has(origin) || request.headers.get('Origin') !== origin) return reply(403, 'Please submit from the Iowa Bowling Coaches website.');
+  const preview = origin === previewOrigin && env.HISTORY_TEST_KEY?.length >= 32 &&
+    request.headers.get('X-History-Test-Key') === env.HISTORY_TEST_KEY;
+  if ((!allowedOrigins.has(origin) && !preview) || request.headers.get('Origin') !== origin) return reply(403, 'Please submit from the Iowa Bowling Coaches website.');
   if (request.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase() !== 'application/x-www-form-urlencoded' || !request.body) {
     return reply(415, 'Please use the contribution form. Attachments are not accepted.');
   }
@@ -51,6 +80,11 @@ export async function onRequest({ request, env }) {
   if (!message || message.length > 4000 || name.length > 120 || !emailOk || !linkOk) {
     return reply(400, 'Go back and check your message, reply email, or document link.');
   }
+  if (!env.HISTORY_INBOX || !/^[a-f0-9]{32}$/i.test(env.HISTORY_MAIL_ACCOUNT ?? '') ||
+      !env.HISTORY_MAIL_TOKEN || !env.HISTORY_MAIL_FROM || !env.HISTORY_MAIL_TO) {
+    return reply(503, 'Your contribution was not saved. Go back and try again later.');
+  }
+  let id;
   try {
     const result = await env.HISTORY_INBOX.prepare(`
       INSERT INTO history_submissions (name, email, message, link)
@@ -58,7 +92,15 @@ export async function onRequest({ request, env }) {
       WHERE (SELECT COUNT(*) FROM history_submissions WHERE received_at >= unixepoch() - 60) < 20
     `).bind(name || null, email || null, message, link || null).run();
     if (result.meta.changes === 0) return reply(429, 'The form is busy. Go back and try again in a minute.', { 'Retry-After': '60' });
-    if (result.success && result.meta.changes === 1) return accepted();
+    if (result.success && result.meta.changes === 1) id = result.meta.last_row_id;
   } catch { /* Never log submission content. */ }
-  return reply(503, 'Your contribution was not saved. Go back and try again later.');
+  if (!Number.isSafeInteger(id) || id < 1) return reply(503, 'Your contribution could not be confirmed. Go back and try again later.');
+  let sent = false;
+  try { sent = await notify(env, { name, email, message, link, id, preview }); } catch { /* Do not expose provider response details. */ }
+  if (!sent) {
+    console.warn('History inbox notification failed for submission ID', id);
+    if (preview) return reply(502, `Test submission #${id} was saved, but email sending could not be confirmed.`);
+  }
+  if (preview) return reply(200, `Test submission #${id} was saved and accepted for email delivery.`);
+  return accepted();
 }
