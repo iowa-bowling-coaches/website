@@ -36,6 +36,7 @@ function inbox(changes = 1) {
 function mockEmail(t, saved, disposition = 'delivered') {
   return t.mock.method(globalThis, 'fetch', async (_, options) => {
     assert.equal(saved.length, 1, 'Save before sending mail');
+    assert.equal(options.redirect, 'manual', 'Workers must not follow redirects with the bearer token');
     const body = JSON.parse(options.body);
     assert.equal(body.to, fakeRecipient, 'Form values must not control the recipient');
     assert.match(body.text, /2009 program/);

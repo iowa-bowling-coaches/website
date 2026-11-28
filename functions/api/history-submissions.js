@@ -6,7 +6,8 @@ const previewOrigin = 'https://history-contributions.iowa-bowling-coaches.pages.
 async function notify(env, { name, email, message, link, id, preview }) {
   const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env.HISTORY_MAIL_ACCOUNT}/email/sending/send`, {
     method: 'POST',
-    redirect: 'error',
+    // Workers supports manual redirects; never follow one with the bearer token.
+    redirect: 'manual',
     signal: AbortSignal.timeout(8000),
     headers: { Authorization: `Bearer ${env.HISTORY_MAIL_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
