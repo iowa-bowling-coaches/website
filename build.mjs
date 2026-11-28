@@ -110,7 +110,39 @@ const contentPage = ({ source, current, canonical, description, intro, extraClas
 });
 
 const awards = contentPage({ source: awardsPage, current: 'awards', canonical: '/awards/', description: 'Iowa high school bowling All-State, All-District, and Academic All-State awards.', intro: 'All-State, All-District, and Academic All-State recognition by season.', extraClass: 'awards-content' });
-const history = contentPage({ source: historyPage, current: 'history', canonical: '/history/', description: 'Historical Iowa high school bowling tournament programs and documents.', intro: 'Tournament programs and documents preserved by season.', extraClass: 'history-content' });
+const historySources = {
+  '2025-26': [
+    ['2026 boys’ state tournament results (IHSAA)', 'https://www.iahsaa.org/2026-bowling/'],
+    ['2026 girls’ state tournament results and lane assignments (IGHSAU)', 'https://ighsau.org/2026-bowling-tournament-central'],
+  ],
+  '2024-25': [
+    ['2025 state tournament results, qualifiers, and lane assignments (IHSAA)', 'https://www.iahsaa.org/2025-bowling/'],
+    ['2025 girls’ state tournament results and qualifying information (IGHSAU)', 'https://ighsau.org/2025-bowling-tournament-central'],
+  ],
+  '2023-24': [
+    ['2024 state tournament results and lane assignments (IHSAA)', 'https://www.iahsaa.org/2024-bowling/'],
+    ['2024 state tournament information packet (IHSAA PDF)', 'https://www.iahsaa.org/wp-content/uploads/2024/02/2024-STATE-BOWLING-CHAMPIONSHIPS-INFO.pdf'],
+  ],
+  '2022-23': [
+    ['2023 state tournament results (IHSAA)', 'https://www.iahsaa.org/resources/web-archives/2023-bowling/'],
+    ['2023 state tournament lane assignments and information packet (IHSAA PDF)', 'https://www.iahsaa.org/wp-content/uploads/2023/02/2023_IHSAA_Bowling_State_Information_Public.pdf'],
+  ],
+  '2020-21': [
+    ['2021 state tournament results, qualifiers, and lane assignments (IHSAA)', 'https://www.iahsaa.org/resources/web-archives/2021-bowling/'],
+  ],
+};
+const archiveLinks = links => `<ul>${links.map(([label, url]) => `<li><a href="${escapeHtml(url)}">${escapeHtml(label)}</a></li>`).join('')}</ul>`;
+let historyContent = historyPage.content;
+for (const [season, sources] of Object.entries(historySources)) {
+  const headingEnd = `<strong>${season}</strong></p>`;
+  if (historyContent.split(headingEnd).length !== 2) throw new Error(`Expected one History heading for ${season}.`);
+  historyContent = historyContent.replace(headingEnd, `${headingEnd}\n${archiveLinks(sources)}`);
+}
+historyContent += `<h2>More bowling history</h2>${archiveLinks([
+  ['2026 IHSAA Bowling Record Book (PDF, includes Bowling Proprietors champions from 1970–2009)', 'https://www.iahsaa.org/wp-content/uploads/2026/08/2026-Bowling-RB-8.28.pdf'],
+  ['How Iowa’s bowling coaches organized in 2008 (Iowa Girls Coaches Association)', 'https://www.iagca.org/history-of-the-igca'],
+])}`;
+const history = contentPage({ source: { ...historyPage, content: historyContent }, current: 'history', canonical: '/history/', description: 'Iowa high school bowling history, including state tournament programs, official results, and meet packets.', intro: 'Souvenir programs, official results, and state meet documents, organized by season.', extraClass: 'history-content' });
 const links = page({
   title: 'Links', current: 'links', canonical: '/links/',
   description: 'Official Iowa high school bowling organizations and resources.',
