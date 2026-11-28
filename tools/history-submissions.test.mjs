@@ -80,10 +80,15 @@ test('preview writes require the test key and report only synthetic test status'
   const { saved, env } = inbox();
   const mail = mockEmail(t, saved, 'queued');
   env.HISTORY_TEST_KEY = 'x'.repeat(32);
+  const form = await onRequest({ env, request: new Request(previewOrigin + '/api/history-submissions') });
+  assert.equal(form.status, 200);
+  const markup = await form.text();
+  assert.match(markup, /Send synthetic test/);
+  assert.ok(!markup.includes(env.HISTORY_TEST_KEY));
   const preview = key => onRequest({
     env, request: new Request(previewOrigin + '/api/history-submissions', {
-      method: 'POST', headers: { Origin: previewOrigin, 'X-History-Test-Key': key },
-      body: new URLSearchParams({ message: 'Test 2009 program.' }),
+      method: 'POST', headers: { Origin: previewOrigin },
+      body: new URLSearchParams({ message: 'Test 2009 program.', preview_key: key }),
     }),
   });
   assert.equal((await preview('invalid')).status, 403);

@@ -37,10 +37,16 @@ function reply(status, message, extra = {}) {
 }
 
 export async function onRequest({ request, env }) {
-  if (request.method !== 'POST') return reply(405, 'Please use the contribution form.', { Allow: 'POST' });
   const origin = new URL(request.url).origin;
-  const preview = origin === previewOrigin && env.HISTORY_TEST_KEY?.length >= 32 &&
-    request.headers.get('X-History-Test-Key') === env.HISTORY_TEST_KEY;
+  const preview = origin === previewOrigin && env.HISTORY_TEST_KEY?.length >= 32;
+  if (request.method === 'GET' && preview) {
+    return reply(200, '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>History inbox delivery test</title><h1>History inbox delivery test</h1><form method="post" action="/api/history-submissions"><label>Preview test key <input type="password" name="preview_key" autocomplete="off" required></label><input type="hidden" name="message" value="Synthetic bowling archive delivery test. No real contribution."><button type="submit">Send synthetic test</button></form></html>', {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Content-Security-Policy': "default-src 'none'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
+      'X-Robots-Tag': 'noindex',
+    });
+  }
+  if (request.method !== 'POST') return reply(405, 'Please use the contribution form.', { Allow: 'POST' });
   if ((!allowedOrigins.has(origin) && !preview) || request.headers.get('Origin') !== origin) return reply(403, 'Please submit from the Iowa Bowling Coaches website.');
   if (request.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase() !== 'application/x-www-form-urlencoded' || !request.body) {
     return reply(415, 'Please use the contribution form. Attachments are not accepted.');
@@ -66,6 +72,9 @@ export async function onRequest({ request, env }) {
     return reply(400, 'The submission could not be read. Go back and try again.');
   }
   const fields = new URLSearchParams(body);
+  if (preview && (request.headers.get('X-History-Test-Key') ?? fields.get('preview_key')) !== env.HISTORY_TEST_KEY) {
+    return reply(403, 'A preview test key is required.');
+  }
   const accepted = () => reply(303, null, { Location: thankYou });
   if (fields.get('website')) return accepted();
   const [name, email, message, link] = ['name', 'email', 'message', 'link'].map(key => (fields.get(key) ?? '').trim());
