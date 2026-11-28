@@ -64,7 +64,7 @@ const page = ({ title, description, current, content, canonical = '/', bodyClass
   <meta name="theme-color" content="#10254a">
   <link rel="canonical" href="${origin}${canonical}">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=20261108-1">
+  <link rel="stylesheet" href="/styles.css?v=20261126-1">
   <title>${escapeHtml(title)} | Iowa Bowling Coaches Association</title>
 </head><body class="${bodyClass}">
 ${header(current)}
@@ -80,7 +80,32 @@ const linksPage = findPage('Links');
 const hallPage = findPage('Hall of Fame');
 if (!awardsPage || !historyPage || !linksPage || !hallPage) throw new Error('A required WordPress page is missing from the snapshot.');
 
-const posts = [...data.posts].sort((a, b) => b.date.localeCompare(a.date));
+const historyAppeal = {
+  date: '2026-11-26',
+  slug: 'help-preserve-iowa-bowling-history',
+  title: 'Help preserve Iowa high school bowling history',
+  excerpt: 'Help us find missing state tournament programs, including booklets from the Bowling Proprietors tournaments held from 1970 to 2009.',
+  content: `<p>Do you have a state tournament program tucked away in a binder or a box of old bowling records? The Iowa Bowling Coaches Association is looking for materials that help tell the story of high school bowling across Iowa.</p>
+  <p>Our <a href="/history/">history archive</a> has some programs and official results, but we’re still looking for these souvenir booklets:</p>
+  <ul>
+    <li><strong>2010–2020:</strong> State tournament programs from 2010, 2012, 2014–2017, and 2020. We have the 2020 qualifier letter, but we’re still looking for the program.</li>
+    <li><strong>Recent tournaments:</strong> Programs from 2021 and 2023–2026, including any separate boys’ or girls’ editions.</li>
+    <li><strong>Bowling Proprietors tournaments (1970–2009):</strong> Programs from the Iowa Association of Bowling Proprietors’ invitational state meets, plus any results or team photos you’ve saved from that era.</li>
+  </ul>
+  <p>We’d also welcome early girls’ state tournament programs, brackets, newspaper clippings, and firsthand memories. Even a single page or a note about where to look is useful.</p>
+  <p>If you have something to share, tell us the year or season, school or team, and what you have. You can include a link to a scan or photo, or leave a reply email and let us know if you have a paper copy or need help sharing a file.</p>
+  <h2>Share a piece of bowling history</h2>
+  <p>Submissions go to the association for review and are not posted automatically. Please don’t include private student information. If you leave a reply email, we’ll use it to follow up about your contribution.</p>
+  <form class="history-form" action="/api/history-submissions" method="post">
+    <label>Your name <span>(optional)</span><input name="name" maxlength="120" autocomplete="name"></label>
+    <label>Reply email <span>(optional)</span><input name="email" type="email" maxlength="254" autocomplete="email"></label>
+    <label>What would you like to share?<textarea name="message" rows="6" maxlength="4000" required></textarea></label>
+    <label>Link to a scan, photo, or document <span>(optional)</span><input name="link" type="url" maxlength="1000" placeholder="https://"></label>
+    <div hidden><label>Leave this blank<input name="website" tabindex="-1" autocomplete="off"></label></div>
+    <button class="button primary" type="submit">Send contribution</button>
+  </form>`,
+};
+const posts = [historyAppeal, ...data.posts].sort((a, b) => b.date.localeCompare(a.date));
 const postPath = post => `/${post.date.slice(0, 4)}/${post.date.slice(5, 7)}/${post.date.slice(8, 10)}/${post.slug}/`;
 const articleCards = posts.map(post => `<article class="update-card">
   <p class="eyebrow">${formattedDate(post.date)}</p>
@@ -175,6 +200,10 @@ const routes = [
   ['history/index.html', history],
   ['links/index.html', links],
   ['hall-of-fame/index.html', hall],
+  ['history/thank-you/index.html', page({
+    title: 'Thank you for sharing', description: 'Your bowling history contribution was received.', canonical: '/history/thank-you/',
+    content: '<article class="article-shell"><h1>Thank you for helping preserve Iowa bowling history.</h1><p>Your contribution was received. If you left a reply email, the association can follow up with you.</p><a class="text-link" href="/history/">Explore the history archive</a></article>',
+  })],
   ['404.html', notFound],
   ...articlePages.map(article => [`${article.route.slice(1)}index.html`, article.html]),
 ];
@@ -203,5 +232,6 @@ await Promise.all([
   writeFile(path.join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${origin}/sitemap.xml\n`, 'utf8'),
   writeFile(path.join(out, '_redirects'), redirects, 'utf8'),
   writeFile(path.join(out, '_headers'), headers, 'utf8'),
+  writeFile(path.join(out, '_routes.json'), JSON.stringify({ version: 1, include: ['/api/history-submissions'], exclude: [] }) + '\n', 'utf8'),
 ]);
 console.log(`Built ${routes.length} HTML pages and ${data.media.length} preserved media items in dist/.`);
